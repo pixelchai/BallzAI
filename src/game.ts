@@ -1,5 +1,6 @@
 import { Engine } from "./engine.js";
 import * as Constants from "./constants.js"
+import { PosUtil } from "./util.js";
 
 export class Block {
     render(cx: CanvasRenderingContext2D, x: number, y: number, opacity: number){
@@ -102,32 +103,41 @@ export class NewBall extends Block {
 }
 
 export class Ball {
+    static speed: number = 1500;
+
     x: number;
     y: number;
 
     vx: number;
     vy: number;
 
-    constructor(x: number, y: number){
+    constructor(x: number, y: number, t?: number){
         this.x = x;
         this.y = y;
 
-        // if (t !== undefined){
-        //     // todo
-        // } else {
-        //     this.vx = 0;
-        //     this.vy = 0;
-        // }
+        if (t !== undefined){
+            [this.vx, this.vy] = PosUtil.rec(t, Ball.speed);
+        } else {
+            this.vx = 0;
+            this.vy = 0;
+        }
+    }
+
+    step(){
+        this.x += this.vx * Engine.time_step;
+        this.y -= this.vy * Engine.time_step;
     }
 }
 
 export class Game {
-    num_level: number = 1;
+    num_level: number = 0;
     num_balls: number = 1;
 
     grid: Array<Array<Block>> = []; // list of rows of blocks
     aim_x: number = Engine.width/2 - Engine.ball_radius;
     aim_y: number = Engine.height - Engine.ball_radius;
+
+    balls: Array<Ball> = []; // list of balls that are currently bouncing
 
 
     state: number = Constants.STATE_BOUNCING; // because next will be NEW_ROW
@@ -135,16 +145,35 @@ export class Game {
     advance_state(){
         this.state = (this.state + 1) % Constants.NUM_STATES;        
     }
+
+    fire(theta: number){
+        // FIXME: this is wrong -- need to add balls with some time gap - fix later
+        for(let i = 0; i < this.num_balls; i++){
+            this.balls.push(new Ball(this.aim_x, this.aim_y, theta));
+        }
+        this.advance_state();
+    }
     
     step(){
         if (this.state == Constants.STATE_BOUNCING){
-            this.step_row();
-            this.advance_state();
+            this.step_balls();
         }
     }
 
+    private step_balls(){
+        if (this.balls.length == 0){
+            this.step_row();
+            this.advance_state();
+        }
+
+        this.balls.forEach(function(ball: Ball){
+            ball.step();
+        });
+    }
+
     private step_row(){
-        this.grid.push(this.new_row());
+        ++this.num_level;
+        this.grid.unshift(this.new_row());
     }
 
     private new_row() {

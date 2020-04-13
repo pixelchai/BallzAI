@@ -14,7 +14,7 @@ export class Engine {
     private row_lerp_offset: number;
 
     static readonly speed: number = 1;                             // speed (multiplier)
-    static readonly frame_rate: number = 20;                      // number of frames to be shown per second
+    static readonly frame_rate: number = 120;                      // number of frames to be shown per second
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
     static readonly time_step: number = 1 / Engine.frame_rate * Engine.speed; // number of seconds each frame is shown for
     
@@ -59,6 +59,9 @@ export class Engine {
         window.addEventListener("mousemove", function(e){
             self.on_mouse_move(e);
         });
+        window.addEventListener("mouseup", function(e){
+            self.on_mouse_up(e);
+        });
     }
 
     get_mouse_pos(e: MouseEvent){
@@ -92,6 +95,18 @@ export class Engine {
         }
     }
 
+    private on_mouse_up(e: MouseEvent){
+        if (this.game.state == Constants.STATE_AIMING){
+            let theta = PosUtil.get_angle(
+                this.game.aim_x,
+                this.game.aim_y,
+                this.mouse_x,
+                this.mouse_y
+            );
+            this.game.fire(theta);
+        }
+    }
+
     start(){
         let self = this;
         this.frame_timer = setInterval(function(){
@@ -114,7 +129,6 @@ export class Engine {
             }
             return;
         } else if (this.game.state == Constants.STATE_AIMING){
-            // console.log("aiming");
             return;
         }
 
@@ -141,6 +155,8 @@ export class Engine {
         if (this.game.state == Constants.STATE_AIMING){
             this.draw_aim_line();
             this.draw_aim_ball();
+        } else if (this.game.state == Constants.STATE_BOUNCING){
+            this.draw_balls();
         }
 
         this.draw_header();
@@ -239,10 +255,17 @@ export class Engine {
         this.cx.fill();
     }
 
+    private draw_balls(){
+        let self = this;
+        this.game.balls.forEach(function(ball: Ball){
+            self.draw_ball(ball);
+        });
+    }
+
     private draw_header(){
-        // header background
-        this.cx.fillStyle = Constants.C_HEADER_BACKGROUND;
-        this.cx.fillRect(0, 0, this.c.width, Engine.header_height);
+        // // header background
+        // this.cx.fillStyle = Constants.C_HEADER_BACKGROUND;
+        // this.cx.fillRect(0, 0, this.c.width, Engine.header_height);
 
         // level number
         this.cx.textAlign = "left";
