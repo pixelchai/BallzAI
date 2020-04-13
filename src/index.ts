@@ -1,2 +1,2 @@
 import { Engine } from "./engine.js";
-new Engine().run();
+new Engine().start();

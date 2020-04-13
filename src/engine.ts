@@ -1,19 +1,22 @@
+import * as Constants from './constants.js';
+
 export class Engine{
     // canvas API
     private c: HTMLCanvasElement;
     private cx: CanvasRenderingContext2D;
 
+    private frame_timer: number;
+
     static readonly frame_rate: number = 120;                      // number of frames to be shown per second
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
     static readonly time_step: number = 1 / Engine.frame_rate;     // number of seconds each frame is shown for
     
-    static readonly width: number = 640;
-    static readonly height: number = 480;
+    static readonly width: number = 1280;
+    static readonly height: number = 960;
 
     constructor(){
         this.c = <HTMLCanvasElement> document.getElementById('c');
         this.cx = this.c.getContext('2d');
-        console.log(Engine.frame_rate);
 
         this.init_size();
     }
@@ -23,7 +26,25 @@ export class Engine{
         this.c.height = Engine.height;
     }
 
-    run(){
-        
+    start(){
+        let self = this;
+        this.frame_timer = setInterval(function(){
+            self.update();
+            self.draw();
+        }, Engine.frame_time);
+    }
+
+    update(){
+
+    }
+
+    draw(){
+        this.clear();
+    }
+
+    clear(){
+        //background
+        this.cx.fillStyle = Constants.C_BACKGROUND;
+        this.cx.fillRect(0, 0, this.c.width, this.c.height);
     }
 }
