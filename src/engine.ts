@@ -1,6 +1,6 @@
 import * as Constants from './constants.js';
 
-import { Game, Block } from './game.js';
+import { Game, Block, Ball } from './game.js';
 
 export class Engine {
     private c: HTMLCanvasElement;
@@ -12,16 +12,19 @@ export class Engine {
 
     private row_lerp_offset: number;
 
+    static readonly speed: number = 1;                             // speed (multiplier)
     static readonly frame_rate: number = 120;                      // number of frames to be shown per second
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
-    static readonly time_step: number = 1 / Engine.frame_rate;     // number of seconds each frame is shown for
+    static readonly time_step: number = 1 / Engine.frame_rate * Engine.speed; // number of seconds each frame is shown for
     
     static readonly width: number = 720; // 721 because it is divisible by 7
     static readonly height: number = 1280;
 
     static readonly grid_width: number = 6; // how many blocks wide the grid should be
-    static readonly block_size: number = Math.floor(Engine.width / Engine.grid_width); // px
+    static readonly block_size: number = Math.floor(Engine.width / Engine.grid_width); // in px
     static readonly block_padding: number = 20; // in px
+
+    static readonly ball_radius: number = 15; // in px
 
     static readonly header_height: number = 70; // in px
 
@@ -52,17 +55,14 @@ export class Engine {
             self.draw();
 
             self.last_state = self.game.state;
-            self.time += Engine.time_step;
         }, Engine.frame_time);
     }
 
     update(){
         if (this.game.state == Constants.STATE_NEW_ROW){
-            // console.log(this.row_offset);
             if (this.row_lerp_offset < 0){
                 // lerp row offset
                 this.row_lerp_offset += Engine.time_step*400;
-                // console.log(this.row_offset);
             } else if (this.row_lerp_offset >= 0) {
                 // finished lerping
                 console.log("fin");
@@ -93,6 +93,8 @@ export class Engine {
     draw(){
         this.clear();
         this.draw_grid();
+        this.draw_aim_ball();
+
         this.draw_header();
     }
 
@@ -132,6 +134,25 @@ export class Engine {
         }
         let c_h: any = '0x'+c.join('');
         return 'rgba('+[(c_h>>16)&255, (c_h>>8)&255, c_h&255].join(',')+','+opacity.toString()+')';
+    }
+
+    private draw_aim_ball(){
+        this.draw_ball(this.game.aim_ball);
+    }
+
+    private draw_ball(ball: Ball){
+        this.cx.fillStyle = Constants.C_FOREROUND;
+        this.cx.beginPath();
+        this.cx.ellipse(
+            ball.x,
+            ball.y, 
+            Engine.ball_radius, 
+            Engine.ball_radius, 
+            0, 
+            0, 
+            2*Math.PI
+        );
+        this.cx.fill();
     }
 
     private draw_header(){

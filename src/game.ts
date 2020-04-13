@@ -101,14 +101,34 @@ export class NewBall extends Block {
     }
 }
 
+export class Ball {
+    x: number;
+    y: number;
+
+    vx: number;
+    vy: number;
+
+    constructor(x: number, t?: number){
+        this.x = x;
+        this.y = Engine.height - Engine.ball_radius;
+
+        if (t !== undefined){
+            // todo
+        } else {
+            this.vx = 0;
+            this.vy = 0;
+        }
+    }
+}
 
 export class Game {
     num_level: number = 1;
     num_balls: number = 1;
 
     grid: Array<Array<Block>> = []; // list of rows of blocks
+    aim_ball: Ball = new Ball(Engine.width/2 - Engine.ball_radius);
 
-    state: number = Constants.STATE_BOUNCING;
+    state: number = Constants.STATE_BOUNCING; // because next will be NEW_ROW
 
     advance_state(){
         this.state = (this.state + 1) % Constants.NUM_STATES;        
