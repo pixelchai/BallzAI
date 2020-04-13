@@ -108,16 +108,16 @@ export class Ball {
     vx: number;
     vy: number;
 
-    constructor(x: number, t?: number){
+    constructor(x: number, y: number){
         this.x = x;
-        this.y = Engine.height - Engine.ball_radius;
+        this.y = y;
 
-        if (t !== undefined){
-            // todo
-        } else {
-            this.vx = 0;
-            this.vy = 0;
-        }
+        // if (t !== undefined){
+        //     // todo
+        // } else {
+        //     this.vx = 0;
+        //     this.vy = 0;
+        // }
     }
 }
 
@@ -127,7 +127,7 @@ export class Game {
 
     grid: Array<Array<Block>> = []; // list of rows of blocks
     aim_x: number = Engine.width/2 - Engine.ball_radius;
-    aim_y: number = Engine.height - Engine.ball_radius;
+    aim_y: number = -200 + Engine.height - Engine.ball_radius;
 
 
     state: number = Constants.STATE_BOUNCING; // because next will be NEW_ROW

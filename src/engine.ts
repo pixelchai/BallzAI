@@ -1,4 +1,5 @@
 import * as Constants from './constants.js';
+import { PosUtil } from './util.js';
 
 import { Game, Block, Ball } from './game.js';
 
@@ -13,7 +14,7 @@ export class Engine {
     private row_lerp_offset: number;
 
     static readonly speed: number = 1;                             // speed (multiplier)
-    static readonly frame_rate: number = 120;                      // number of frames to be shown per second
+    static readonly frame_rate: number = 20;                      // number of frames to be shown per second
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
     static readonly time_step: number = 1 / Engine.frame_rate * Engine.speed; // number of seconds each frame is shown for
     
@@ -25,8 +26,12 @@ export class Engine {
     static readonly block_padding: number = 20; // in px
 
     static readonly ball_radius: number = 15; // in px
+    static readonly aim_line_length: number = 100; // in px
 
     static readonly header_height: number = 70; // in px
+
+    private mouse_x: number;
+    private mouse_y: number;
 
     constructor(){
         this.c = <HTMLCanvasElement> document.getElementById('c');
@@ -58,7 +63,7 @@ export class Engine {
 
     get_mouse_pos(e: MouseEvent){
         // adapted from: https://stackoverflow.com/a/17130415/5013267
-        
+
         let rect = this.c.getBoundingClientRect(); // abs. size of element
         
         // adjust width/height to factor in 'object-fit: contain'
@@ -83,7 +88,7 @@ export class Engine {
 
     private on_mouse_move(e: MouseEvent){
         if (this.game.state == Constants.STATE_AIMING){
-            this.draw_aim_line(e);
+            [this.mouse_x, this.mouse_y] = this.get_mouse_pos(e);
         }
     }
 
@@ -135,6 +140,7 @@ export class Engine {
 
         if (this.game.state == Constants.STATE_AIMING){
             this.draw_aim_ball();
+            this.draw_aim_line();
         }
 
         this.draw_header();
@@ -179,16 +185,25 @@ export class Engine {
     }
 
     private draw_aim_ball(){
-        this.draw_ball(new Ball(this.game.aim_x));
+        this.draw_ball(new Ball(this.game.aim_x, this.game.aim_y));
     }
 
-    private draw_aim_line(e: MouseEvent){
-        let [x, y] = this.get_mouse_pos(e);
-
+    private draw_aim_line(){
         this.cx.strokeStyle = "#fff";
+        this.cx.lineWidth = 3;
         this.cx.beginPath();
+
+        // let theta = PosUtil.get_angle(this.game.aim_x, this.game.aim_y, this.mouse_x, this.mouse_y);
+        let theta = PosUtil.get_angle(this.game.aim_x, this.game.aim_y, this.mouse_x, this.mouse_y);
+        console.log(theta);
+        
+        let [dx, dy] = PosUtil.rec(theta, Engine.aim_line_length);
+
         this.cx.moveTo(this.game.aim_x, this.game.aim_y);
-        this.cx.lineTo(x, y);
+        this.cx.lineTo(this.game.aim_x + dx, this.game.aim_y - dy);
+        // this.cx.lineTo(this.mouse_x, this.mouse_y);
+        // console.log(this.game.aim_y - this.mouse_y);
+        
         this.cx.stroke();
     }
 
