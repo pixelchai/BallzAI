@@ -1,0 +1,13 @@
+{
+    "include": [
+        "src/**/*"
+    ],
+    "compilerOptions": {
+        "target": "es6",
+        "noImplicitAny": true,
+        "allowJs": false,
+        "sourceMap": true,
+        "outDir": "dist",
+        "baseUrl": "."
+    }
+}
