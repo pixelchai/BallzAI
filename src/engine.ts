@@ -3,7 +3,6 @@ import * as Constants from './constants.js';
 import { Game, Block } from './game.js';
 
 export class Engine {
-    // canvas API
     private c: HTMLCanvasElement;
     private cx: CanvasRenderingContext2D;
 
@@ -53,6 +52,7 @@ export class Engine {
             self.draw();
 
             self.last_state = self.game.state;
+            self.time += Engine.time_step;
         }, Engine.frame_time);
     }
 
@@ -112,30 +112,7 @@ export class Engine {
                 let block: Block = this.game.grid[row][col];
 
                 if(block !== null){
-
-                    // rect colour
-                    this.cx.fillStyle = Engine.change_opacity(block.colour, opacity_lerp);
-
-                    // draw rect
-                    this.cx.fillRect(
-                        col_offset + Engine.block_padding/2,
-                        row_offset + Engine.block_padding/2, 
-                        Engine.block_size - Engine.block_padding, 
-                        Engine.block_size - Engine.block_padding
-                    );
-
-                    // draw value
-                    this.cx.fillStyle = Constants.C_BACKGROUND;
-                    this.cx.textAlign = "left";
-
-                    let value_str = block.value.toString();
-                    let text_size = this.cx.measureText(value_str);
-
-                    this.cx.fillText(
-                        value_str,
-                        col_offset + Engine.block_size/2 - text_size.width/2,
-                        row_offset + Engine.block_size/2 + 10
-                    );
+                    block.render(this.cx, col_offset, row_offset, opacity_lerp);
                 }
 
                 col_offset += Engine.block_size;
@@ -145,7 +122,7 @@ export class Engine {
         }
     }
 
-    private static change_opacity(hex_colour: string, opacity: number){
+    static change_opacity(hex_colour: string, opacity: number){
         if (opacity == 1) return hex_colour;
 
         // source: https://stackoverflow.com/a/21648508/5013267
