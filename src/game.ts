@@ -58,7 +58,7 @@ export class Game {
         let row: Array<Block> = [];
 
         for(let i = 0; i < Engine.grid_width; i++){
-            let value = Math.floor(Math.random() * (this.num_level)) + 1;
+            let value = Math.floor(Math.random() * (this.num_level*2 + this.num_level - 1)) + this.num_level + 1;
 
             row.push(new Block(value));
         }

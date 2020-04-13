@@ -119,6 +119,19 @@ export class Engine {
                     Engine.block_size - Engine.block_padding
                 );
 
+                // draw value
+                self.cx.fillStyle = Constants.C_BACKGROUND;
+                self.cx.textAlign = "left";
+
+                let value_str = self.game.grid[row][col].value.toString();
+                let text_size = self.cx.measureText(value_str);
+
+                self.cx.fillText(
+                    value_str,
+                    col_offset + Engine.block_size/2 - text_size.width/2,
+                    row_offset + Engine.block_size/2 + 10
+                );
+
                 col_offset += Engine.block_size;
             }
 
