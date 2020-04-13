@@ -8,6 +8,7 @@ export class Engine {
     private cx: CanvasRenderingContext2D;
 
     private frame_timer: number;
+    private game: Game;
 
     static readonly frame_rate: number = 120;                      // number of frames to be shown per second
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
@@ -15,12 +16,16 @@ export class Engine {
     
     static readonly width: number = 721; // 721 because it is divisible by 7
     static readonly height: number = 1280;
+    static readonly grid_width: number = 7;
+
 
     constructor(){
         this.c = <HTMLCanvasElement> document.getElementById('c');
         this.cx = this.c.getContext('2d');
 
         this.init_size();
+
+        this.game = new Game();
     }
 
     private init_size(){
@@ -29,6 +34,8 @@ export class Engine {
     }
 
     start(){
+        this.game.step_row();
+
         let self = this;
         this.frame_timer = setInterval(function(){
             self.update();

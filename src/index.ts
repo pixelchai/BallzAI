@@ -1,2 +1,3 @@
 import { Engine } from "./engine.js";
-new Engine().start();
+Window.engine = new Engine();
+Window.engine.start();
