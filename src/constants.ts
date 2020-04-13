@@ -1,5 +1,6 @@
 export const C_BACKGROUND: string = '#222';
 export const C_HEADER_BACKGROUND: string = '#111';
+export const C_FOREROUND: string = '#ccc';
 export const BLOCK_COLOURS: Array<string> = [
     '#F25F5C',
     '#FFE066',

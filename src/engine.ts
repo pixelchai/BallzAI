@@ -31,6 +31,7 @@ export class Engine {
         this.cx = this.c.getContext('2d');
 
         this.init_size();
+        this.init_res(); // init resources
 
         this.game = new Game();
     }
@@ -38,6 +39,11 @@ export class Engine {
     private init_size(){
         this.c.width = Engine.width;
         this.c.height = Engine.height;
+    }
+
+    private init_res(){
+        // set font
+        this.cx.font = '40px DM Sans';
     }
 
     start(){
@@ -136,6 +142,11 @@ export class Engine {
         // header background
         this.cx.fillStyle = Constants.C_HEADER_BACKGROUND;
         this.cx.fillRect(0, 0, this.c.width, Engine.header_height);
+
+        // level number
+        this.cx.textAlign = "left";
+        this.cx.fillStyle = Constants.C_FOREROUND;
+        this.cx.fillText("Level: " + this.game.num_level.toString(), 20, Engine.header_height/2 + 15);
     }
 
     clear(){
