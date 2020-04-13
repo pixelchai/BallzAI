@@ -34,6 +34,7 @@ export class Engine {
 
         this.init_size();
         this.init_res(); // init resources
+        this.init_listeners();
 
         this.game = new Game();
     }
@@ -46,6 +47,44 @@ export class Engine {
     private init_res(){
         // set font
         this.cx.font = '40px DM Sans';
+    }
+
+    private init_listeners(){
+        let self = this;
+        window.addEventListener("mousemove", function(e){
+            self.on_mouse_move(e);
+        });
+    }
+
+    get_mouse_pos(e: MouseEvent){
+        // adapted from: https://stackoverflow.com/a/17130415/5013267
+        
+        let rect = this.c.getBoundingClientRect(); // abs. size of element
+        
+        // adjust width/height to factor in 'object-fit: contain'
+        let width: number = rect.width;
+        let height: number = rect.height;
+
+        if (rect.height > rect.width){
+            height = rect.width * (Engine.height / Engine.width);
+        } else if (rect.height < rect.width){
+            width = rect.height * Engine.width / Engine.height;
+        }
+
+        let scaleX = Engine.width / width;    // relationship bitmap vs. element for X
+        let scaleY = Engine.height / height;  // relationship bitmap vs. element for Y
+        
+
+        return [
+            (e.clientX - (rect.width - width)/2) * scaleX,      // scale mouse coordinates after they have
+            (e.clientY - (rect.height - height)/2) * scaleY     // been adjusted to be relative to element
+        ];
+    }
+
+    private on_mouse_move(e: MouseEvent){
+        if (this.game.state == Constants.STATE_AIMING){
+            this.draw_aim_line(e);
+        }
     }
 
     start(){
@@ -93,7 +132,10 @@ export class Engine {
     draw(){
         this.clear();
         this.draw_grid();
-        this.draw_aim_ball();
+
+        if (this.game.state == Constants.STATE_AIMING){
+            this.draw_aim_ball();
+        }
 
         this.draw_header();
     }
@@ -137,7 +179,17 @@ export class Engine {
     }
 
     private draw_aim_ball(){
-        this.draw_ball(this.game.aim_ball);
+        this.draw_ball(new Ball(this.game.aim_x));
+    }
+
+    private draw_aim_line(e: MouseEvent){
+        let [x, y] = this.get_mouse_pos(e);
+
+        this.cx.strokeStyle = "#fff";
+        this.cx.beginPath();
+        this.cx.moveTo(this.game.aim_x, this.game.aim_y);
+        this.cx.lineTo(x, y);
+        this.cx.stroke();
     }
 
     private draw_ball(ball: Ball){
