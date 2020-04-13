@@ -5,7 +5,10 @@
     </head>
     <body>
         <canvas id="c"></canvas>
+        <div class="footer"><a href="https://pixelzerg.github.io">PixelZerg</a></div>
         <style>
+            @import url('https://fonts.googleapis.com/css?family=DM+Sans&display=swap');
+
             * {
                 margin:0;
                 padding:0;
@@ -15,6 +18,7 @@
                 width:100%;
                 height:100%;
                 background: black;
+                font-family: 'DM Sans', sans-serif;
             }
 
             canvas {
@@ -27,6 +31,19 @@
                 height: 100%;
                 width: 100%;
                 object-fit: contain;
+            }
+
+            .footer {
+                position: absolute;
+                position: fixed;
+                font-size: 18px;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                opacity: 0.6;
+            }
+            .footer a {
+                color: white;
             }
         </style>
         <script type="module" src='dist/index.js'></script>

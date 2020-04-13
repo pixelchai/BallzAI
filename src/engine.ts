@@ -11,8 +11,8 @@ export class Engine{
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
     static readonly time_step: number = 1 / Engine.frame_rate;     // number of seconds each frame is shown for
     
-    static readonly width: number = 1280;
-    static readonly height: number = 960;
+    static readonly width: number = 720;
+    static readonly height: number = 1280;
 
     constructor(){
         this.c = <HTMLCanvasElement> document.getElementById('c');
