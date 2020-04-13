@@ -16,11 +16,19 @@ export class Block {
     }
 }
 
+export enum GameState {
+    NEW_ROW  = 1,
+    AIMING   = 2,
+    BOUNCING = 3
+}
+
 export class Game {
     num_level: number = 1;
     num_balls: number = 1;
 
     grid: Array<Array<Block>> = []; // list of rows of blocks
+
+    state: GameState;
 
     // private should_draw: boolean = false;
     // private cx: CanvasRenderingContext2D;
@@ -43,6 +51,10 @@ export class Game {
 
     step_row(){
         this.grid.push(this.new_row());
+    }
+
+    advance_state(){
+        
     }
 
     private new_row() {
