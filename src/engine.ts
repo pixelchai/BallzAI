@@ -10,19 +10,21 @@ export class Engine {
     private frame_timer: number;
     private game: Game;
     private last_state: number;
-    // private lerping_row: boolean = false;
 
-    private row_offset: number;
+    private row_lerp_offset: number;
 
     static readonly frame_rate: number = 120;                      // number of frames to be shown per second
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
     static readonly time_step: number = 1 / Engine.frame_rate;     // number of seconds each frame is shown for
     
-    static readonly width: number = 721; // 721 because it is divisible by 7
+    static readonly width: number = 720; // 721 because it is divisible by 7
     static readonly height: number = 1280;
-    static readonly grid_width: number = 7;
-    static readonly block_size: number = Math.floor(Engine.width / Engine.grid_width);
 
+    static readonly grid_width: number = 6; // how many blocks wide the grid should be
+    static readonly block_size: number = Math.floor(Engine.width / Engine.grid_width); // px
+    static readonly block_padding: number = 20; // in px
+
+    static readonly header_height: number = 70; // in px
 
     constructor(){
         this.c = <HTMLCanvasElement> document.getElementById('c');
@@ -49,28 +51,15 @@ export class Engine {
     }
 
     update(){
-        // if(this.lerping_row){
-        //     if (this.row_offset < 0){
-        //         // lerp row offset
-        //         this.row_offset += Engine.time_step*10;
-        //     } else if (this.row_offset >= 0) {
-        //         // finished lerping
-        //         this.lerping_row = false;
-        //         this.game.advance_state();
-        //     }
-
-        //     return;
-        // }
         if (this.game.state == Constants.STATE_NEW_ROW){
             // console.log(this.row_offset);
-            if (this.row_offset < 0){
+            if (this.row_lerp_offset < 0){
                 // lerp row offset
-                this.row_offset += Engine.time_step*400;
+                this.row_lerp_offset += Engine.time_step*400;
                 // console.log(this.row_offset);
-            } else if (this.row_offset >= 0) {
+            } else if (this.row_lerp_offset >= 0) {
                 // finished lerping
                 console.log("fin");
-                // this.lerping_row = false;
                 this.game.advance_state();
             }
             return;
@@ -82,9 +71,8 @@ export class Engine {
         if (this.state_changed()){
             console.log(this.game.state);
             if(this.game.state == Constants.STATE_NEW_ROW){
-                // begin lerp
-                this.row_offset = -1 * Engine.block_size;
-                // this.lerping_row = true;
+                // initialise lerp
+                this.row_lerp_offset = -1 * Engine.block_size;
             }
         }
     }
@@ -96,24 +84,58 @@ export class Engine {
     draw(){
         this.clear();
         this.draw_grid();
+        this.draw_header();
     }
 
     private draw_grid(){
         let self = this;
 
 
-        let row_offset = this.row_offset;
+        let row_offset = Engine.header_height + this.row_lerp_offset;
         for(let row = 0; row < self.game.grid.length; row++){
             let col_offset = 0;
+            
+            let opacity_lerp: number = 1;
+            // only lerp opacity for top row
+            if (row == 0){
+                opacity_lerp = (Engine.block_size + self.row_lerp_offset)/Engine.block_size; // lerp opacity for fade effect
+            }
+
             for(let col = 0; col < self.game.grid[row].length; col++){
-                self.cx.fillStyle = self.game.grid[row][col].colour;
-                self.cx.fillRect(col_offset, row_offset, Engine.block_size, Engine.block_size);
+                // rect colour
+                self.cx.fillStyle = Engine.change_opacity(self.game.grid[row][col].colour, opacity_lerp);
+
+                // draw rect
+                self.cx.fillRect(
+                    col_offset + Engine.block_padding/2,
+                    row_offset + Engine.block_padding/2, 
+                    Engine.block_size - Engine.block_padding, 
+                    Engine.block_size - Engine.block_padding
+                );
 
                 col_offset += Engine.block_size;
             }
 
             row_offset += Engine.block_size;
         }
+    }
+
+    private static change_opacity(hex_colour: string, opacity: number){
+        if (opacity == 1) return hex_colour;
+
+        // source: https://stackoverflow.com/a/21648508/5013267
+        let c = hex_colour.substring(1).split('');
+        if(c.length== 3){
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        let c_h: any = '0x'+c.join('');
+        return 'rgba('+[(c_h>>16)&255, (c_h>>8)&255, c_h&255].join(',')+','+opacity.toString()+')';
+    }
+
+    private draw_header(){
+        // header background
+        this.cx.fillStyle = Constants.C_HEADER_BACKGROUND;
+        this.cx.fillRect(0, 0, this.c.width, Engine.header_height);
     }
 
     clear(){
