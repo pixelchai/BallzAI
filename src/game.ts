@@ -56,11 +56,22 @@ export class Game {
 
     private new_row() {
         let row: Array<Block> = [];
+        let any_blocks: boolean = false;
 
         for(let i = 0; i < Engine.grid_width; i++){
-            let value = Math.floor(Math.random() * (this.num_level*2 + this.num_level - 1)) + this.num_level + 1;
+            if (Math.random() < Math.min(Math.max(0.3, 0.05*this.num_level), 0.7)){
+                let value = Math.floor(Math.random() * (this.num_level*2 + this.num_level - 1)) + this.num_level + 1;
 
-            row.push(new Block(value));
+                row.push(new Block(value));
+                any_blocks = true;
+            } else {
+                row.push(null);
+            }
+        }
+
+        // special case: level 1 and no blocks
+        if (this.num_level == 1 && !any_blocks){
+            row[0] = new Block(1);
         }
 
         return row;

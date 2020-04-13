@@ -1,6 +1,6 @@
 import * as Constants from './constants.js';
 
-import { Game } from './game.js';
+import { Game, Block } from './game.js';
 
 export class Engine {
     // canvas API
@@ -69,6 +69,9 @@ export class Engine {
                 this.game.advance_state();
             }
             return;
+        } else if (this.game.state == Constants.STATE_AIMING){
+            // console.log("aiming");
+            return;
         }
 
         this.game.step();
@@ -94,43 +97,46 @@ export class Engine {
     }
 
     private draw_grid(){
-        let self = this;
-
 
         let row_offset = Engine.header_height + this.row_lerp_offset;
-        for(let row = 0; row < self.game.grid.length; row++){
+        for(let row = 0; row < this.game.grid.length; row++){
             let col_offset = 0;
             
             let opacity_lerp: number = 1;
             // only lerp opacity for top row
             if (row == 0){
-                opacity_lerp = (Engine.block_size + self.row_lerp_offset)/Engine.block_size; // lerp opacity for fade effect
+                opacity_lerp = (Engine.block_size + this.row_lerp_offset)/Engine.block_size; // lerp opacity for fade effect
             }
 
-            for(let col = 0; col < self.game.grid[row].length; col++){
-                // rect colour
-                self.cx.fillStyle = Engine.change_opacity(self.game.grid[row][col].colour, opacity_lerp);
+            for(let col = 0; col < this.game.grid[row].length; col++){
+                let block: Block = this.game.grid[row][col];
 
-                // draw rect
-                self.cx.fillRect(
-                    col_offset + Engine.block_padding/2,
-                    row_offset + Engine.block_padding/2, 
-                    Engine.block_size - Engine.block_padding, 
-                    Engine.block_size - Engine.block_padding
-                );
+                if(block !== null){
 
-                // draw value
-                self.cx.fillStyle = Constants.C_BACKGROUND;
-                self.cx.textAlign = "left";
+                    // rect colour
+                    this.cx.fillStyle = Engine.change_opacity(block.colour, opacity_lerp);
 
-                let value_str = self.game.grid[row][col].value.toString();
-                let text_size = self.cx.measureText(value_str);
+                    // draw rect
+                    this.cx.fillRect(
+                        col_offset + Engine.block_padding/2,
+                        row_offset + Engine.block_padding/2, 
+                        Engine.block_size - Engine.block_padding, 
+                        Engine.block_size - Engine.block_padding
+                    );
 
-                self.cx.fillText(
-                    value_str,
-                    col_offset + Engine.block_size/2 - text_size.width/2,
-                    row_offset + Engine.block_size/2 + 10
-                );
+                    // draw value
+                    this.cx.fillStyle = Constants.C_BACKGROUND;
+                    this.cx.textAlign = "left";
+
+                    let value_str = block.value.toString();
+                    let text_size = this.cx.measureText(value_str);
+
+                    this.cx.fillText(
+                        value_str,
+                        col_offset + Engine.block_size/2 - text_size.width/2,
+                        row_offset + Engine.block_size/2 + 10
+                    );
+                }
 
                 col_offset += Engine.block_size;
             }
