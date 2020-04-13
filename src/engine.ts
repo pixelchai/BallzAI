@@ -1,6 +1,8 @@
 import * as Constants from './constants.js';
 
-export class Engine{
+import { Game } from './game.js';
+
+export class Engine {
     // canvas API
     private c: HTMLCanvasElement;
     private cx: CanvasRenderingContext2D;
@@ -11,7 +13,7 @@ export class Engine{
     static readonly frame_time: number = 1000 / Engine.frame_rate; // amount of ms each frame is to be shown for
     static readonly time_step: number = 1 / Engine.frame_rate;     // number of seconds each frame is shown for
     
-    static readonly width: number = 720;
+    static readonly width: number = 721; // 721 because it is divisible by 7
     static readonly height: number = 1280;
 
     constructor(){
