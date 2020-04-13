@@ -26,7 +26,7 @@ export class Engine {
     static readonly block_padding: number = 20; // in px
 
     static readonly ball_radius: number = 15; // in px
-    static readonly aim_line_length: number = 100; // in px
+    static readonly aim_line_length: number = 300; // in px
 
     static readonly header_height: number = 70; // in px
 
@@ -139,8 +139,8 @@ export class Engine {
         this.draw_grid();
 
         if (this.game.state == Constants.STATE_AIMING){
-            this.draw_aim_ball();
             this.draw_aim_line();
+            this.draw_aim_ball();
         }
 
         this.draw_header();
@@ -189,22 +189,39 @@ export class Engine {
     }
 
     private draw_aim_line(){
-        this.cx.strokeStyle = "#fff";
+        this.cx.strokeStyle = Constants.C_FOREROUND;
         this.cx.lineWidth = 3;
         this.cx.beginPath();
 
-        // let theta = PosUtil.get_angle(this.game.aim_x, this.game.aim_y, this.mouse_x, this.mouse_y);
-        let theta = PosUtil.get_angle(this.game.aim_x, this.game.aim_y, this.mouse_x, this.mouse_y);
-        console.log(theta);
-        
-        let [dx, dy] = PosUtil.rec(theta, Engine.aim_line_length);
+        let [theta, r] = PosUtil.pol(
+            this.mouse_x - this.game.aim_x,
+            this.game.aim_y - this.mouse_y // y1 - y2  because remember: y decreases as you go up the screen
+        );
+        let [dx, dy] = PosUtil.rec(theta, Math.min(r, Engine.aim_line_length));
+        let [endx, endy] = [this.game.aim_x + dx, this.game.aim_y - dy];
 
         this.cx.moveTo(this.game.aim_x, this.game.aim_y);
-        this.cx.lineTo(this.game.aim_x + dx, this.game.aim_y - dy);
-        // this.cx.lineTo(this.mouse_x, this.mouse_y);
-        // console.log(this.game.aim_y - this.mouse_y);
-        
+        this.cx.lineTo(endx, endy);
         this.cx.stroke();
+
+        // right arrow
+        let alpha = Math.PI + theta + 0.5; // 0.5 = angle the arrow line makes with the aim line
+
+        this.cx.beginPath();
+        this.cx.moveTo(endx, endy);
+        [dx, dy] = PosUtil.rec(alpha, Engine.aim_line_length*0.1);
+        this.cx.lineTo(endx + dx, endy - dy);
+        this.cx.stroke();
+
+        // left arrow
+        alpha = Math.PI + theta - 0.5;
+
+        this.cx.beginPath();
+        this.cx.moveTo(endx, endy);
+        [dx, dy] = PosUtil.rec(alpha, Engine.aim_line_length*0.1);
+        this.cx.lineTo(endx + dx, endy - dy);
+        this.cx.stroke();
+
     }
 
     private draw_ball(ball: Ball){

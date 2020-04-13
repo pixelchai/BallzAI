@@ -3,11 +3,7 @@ export class PosUtil {
         let dy = y1 - y2;
         let dx = x2 - x1;
         
-        // console.log(y1 + "-" + y2 + " = "+dy);
-        console.log(dy + "x" + dx);
-
-        
-        return PosUtil.pol(dx, dy);
+        return Math.atan2(dy, dx);
     }
 
     static rec(t: number, r: number){
@@ -15,6 +11,13 @@ export class PosUtil {
     }
 
     static pol(x: number, y: number){
-        return Math.atan2(y, x);
+        return [Math.atan2(y, x), PosUtil.dist(0, 0, x, y)];
+    }
+
+    static dist(x1: number, y1: number, x2: number, y2: number){
+        let dy = y1 - y2;
+        let dx = x2 - x1;
+
+        return Math.sqrt(dy*dy + dx*dx);
     }
 }

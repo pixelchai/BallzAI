@@ -127,7 +127,7 @@ export class Game {
 
     grid: Array<Array<Block>> = []; // list of rows of blocks
     aim_x: number = Engine.width/2 - Engine.ball_radius;
-    aim_y: number = -200 + Engine.height - Engine.ball_radius;
+    aim_y: number = Engine.height - Engine.ball_radius;
 
 
     state: number = Constants.STATE_BOUNCING; // because next will be NEW_ROW
