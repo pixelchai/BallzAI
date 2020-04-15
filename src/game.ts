@@ -123,9 +123,82 @@ export class Ball {
         }
     }
 
-    step(){
+    step(game: Game){
+        this.step_wall_collisions();
+        this.step_block_collisions(game);
+
         this.x += this.vx * Engine.time_step;
         this.y -= this.vy * Engine.time_step;
+    }
+
+    step_wall_collisions(){
+        if (this.x >= Engine.width || this.x <= 0){
+            this.vx *= -1;
+        }
+        if (this.y >= Engine.height || this.y <= 0){
+            this.vy *= -1;
+        }
+    }
+
+    step_block_collisions(game: Game){
+        let row_offset = Engine.header_height;
+        for(let row = 0; row < game.grid.length; row++){
+            let col_offset = 0;
+            
+            if(this.y <= row_offset + Engine.block_size && this.y >= row_offset){
+                for(let col = 0; col < game.grid[row].length; col++){
+                    let block: Block = game.grid[row][col];
+
+                    if(block !== null){
+                        if(this.x >= col_offset && this.x < col_offset + Engine.block_size){
+                            // got to here => collision
+                            this.handle_collision(game, row, col);
+                            return;
+                        }
+                    }
+
+                    col_offset += Engine.block_size;
+                }
+            }
+
+            row_offset += Engine.block_size;
+        }
+    }
+
+    handle_collision(game: Game, row: number, col: number){
+        console.log(game.grid[row][col]);
+        let block = game.grid[row][col];
+
+        if (block instanceof NewBall){
+            game.num_balls++;
+            game.grid[row][col] = null;
+        }
+
+        if (block instanceof Tile){
+            let block_x = col*Engine.block_size + Engine.block_size/2;
+            let block_y = row*Engine.block_size + Engine.block_size;
+            
+            // Window.engine.draw();
+            // Engine.speed = 0;
+            // Window.engine.frame_
+            // clearInterval(Window.engine.frame_timer);
+
+            // setTimeout(function(){
+            //     Window.engine.cx.fillStyle = "#fff";
+            //     Window.engine.cx.fillRect(block_x, block_y, 10, 10);
+            // }, 10);
+
+            let theta = PosUtil.get_angle(this.x, this.y, block_x, block_y);
+
+            // let [dx, dy]
+
+            if(Math.floor(theta/(Math.PI/2)) % 2 == 0){
+                this.vx*=-1;
+            }else{
+                this.vy*=-1;
+            }
+            
+        }
     }
 }
 
@@ -143,7 +216,7 @@ export class Game {
     state: number = Constants.STATE_BOUNCING; // because next will be NEW_ROW
 
     advance_state(){
-        this.state = (this.state + 1) % Constants.NUM_STATES;        
+        this.state = (this.state + 1) % Constants.NUM_STATES;
     }
 
     fire(theta: number){
@@ -166,8 +239,9 @@ export class Game {
             this.advance_state();
         }
 
+        let self = this;
         this.balls.forEach(function(ball: Ball){
-            ball.step();
+            ball.step(self);
         });
     }
 
